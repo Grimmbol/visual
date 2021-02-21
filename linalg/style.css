@@ -1,0 +1,15 @@
+h1 {
+    color: red;
+}
+
+main {
+    width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#main_canvas  {
+    border-style: solid;
+    margin-left: 100px;
+    margin-right: 100px;
+}
