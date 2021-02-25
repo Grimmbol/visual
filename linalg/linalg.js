@@ -3,33 +3,59 @@
 // global contants
 const STROKE_DEFAULT = 'rgb(  0,  0,  0)';
 const STROKE_VECTOR  = 'rgb(255,  0,  0)';
+const FONT_DEFAULT = '20px sans';
 
 
 // *** Rendring ***
 function render(state) {
+    clear_canvas(state);
     draw_axis(state);
     render_objects(state);
 }
 
+function clear_canvas(state) {
+    let context = state.context;
+    context.clearRect(0,0, state.width, state.height);
+}
+
 function render_objects(state) {
-    let num_objects = state.objects.length
+    let numObjects = state.objects.length
     let objects = state.objects;
-    for(let i = 0; i < num_objects; i++) {
-	let current_object = objects[i]
-	let current_type = current_object.type
+    for(let i = 0; i < numObjects; i++) {
+	let currentObject = objects[i]
+	let currentType = currentObject.type
 	
-	if(string_keys_match(current_type, "vector")) {
+	if(stringKeysMatch(currentType, "vector")) {
 	    render_vector(
 		state,
-		current_object.x,
-		current_object.y,
-		current_object.start
+		currentObject.x,
+		currentObject.y,
+		currentObject.translation
 	    );
 	}
+	else if(stringKeysMatch(currentType, "label")) {
+	    renderLabel(
+		state,
+		currentObject.x,
+		currentObject.y,
+		currentObject.content
+	    )
+	}
 	else {
-	    throw 'Unrecognised object "' + current_type + '" at index ' + i;
+	    throw 'Unrecognised object "' + currenType + '" at index ' + i;
 	}
     }
+}
+
+function renderLabel(state, x, y, content) {
+    console.log(state);
+    let context = state.context;
+    let renderx = state.origin.x + x;
+    let rendery = state.origin.y - y;
+
+    console.log("rendering", content, " at ", renderx, rendery);
+    context.font = FONT_DEFAULT;
+    context.fillText(content, renderx, rendery);
 }
 
 function draw_axis(state) {
@@ -56,27 +82,17 @@ function render_vector(state, x, y, start) {
     renderLine(state, STROKE_VECTOR, x, y, start);
     
     // The arrowhead. This should be a right angle, with the line at 45 degrees
-    let baseAngle = 0
-    baseAngle = Math.asin (
-	y / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))
-    )
+    let baseAngle = findVectorAngle(x, y);
 
-    console.log('baseAngle in rads:', baseAngle);
-    baseAngle = (baseAngle/(2*Math.PI)) * 360;
+    console.log(baseAngle);
     
-    console.log('baseAngle:', baseAngle);
-
     let upperAngle = baseAngle + 180 - 45;
     let lowerAngle = baseAngle + 180 + 45;
     let baseLength = 10;
 
-    console.log(upperAngle, lowerAngle);
-    
     let baseVector = {x: baseLength, y:0};
     let upperVector = rotateVector(baseVector.x, baseVector.y, upperAngle);
     let lowerVector = rotateVector(baseVector.x, baseVector.y, lowerAngle);
-
-    console.log(baseVector, upperVector, lowerVector);
 
     let tipx = start.x + x;
     let tipy = start.y + y;
@@ -103,7 +119,7 @@ function renderLine(state, stroke, x, y, start) {
 }
 
 // *** helpers and generators ***
-function string_keys_match(s1, s2) {
+function stringKeysMatch(s1, s2) {
     if (s1.localeCompare(s2) == 0) {
 	return true;
     }
@@ -117,7 +133,7 @@ function pxstringToInt(input) {
     return parseInt(trimmedString);
 }
 
-// In degrees
+// Input and output in degrees
 function rotateVector(x, y, angle) {
     let cycles = (angle%360) / 360;
     let angle_rad = 2*Math.PI*cycles;
@@ -132,10 +148,42 @@ function rotateVector(x, y, angle) {
     return result;
 }
 
+// Outputs in degrees
+function findVectorAngle(x, y) {
+    // first compute the angle as if the vector was in the first quadrant
+    let angle = Math.abs(Math.asin(y / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))));
+    console.log("The raw angle", angle);
+    
+    // Then we check the quadrant
+    if(x < 0 && y > 0) { // Second, angle flipped about the y-axis
+	console.log("second quadrant")
+	angle += (Math.PI - 2 * angle);
+    }
+    else if(x < 0 && y < 0) { // Third, flipped about y = -x
+	console.log("third quadrant")
+	angle += Math.PI;
+    }
+    else if(x > 0 && y < 0) { // Fourth, angle flipped about the x-axis
+	console.log("fourth quadrant")
+	angle = -angle;
+    }
+    
+    // Convert to degrees and return
+    angle = 360 * (angle/(2*Math.PI));
+    console.log("the angle was found to be", angle);
+    return angle
+}
+
 const init = () => {
     let handle = document.querySelector("#main_canvas");
     let context = handle.getContext('2d');
-    let state = {
+    let state = populateInitialState(context); 
+
+    render(state);
+}
+
+function populateInitialState(context) {
+    return {
 	origin: {x: 250, y: 250},
 	size: {
 	    width:  pxstringToInt(context.canvas.attributes.width.value),
@@ -145,17 +193,66 @@ const init = () => {
 	objects: [
 	    {
 		type: 'vector',
-		x: 150,
-		y: 100,
-		start: {
+		x: 200,
+		y: 20,
+		translation: {
 		    x: 0,
 		    y: 0
 		}
-	    }
+	    },
+	    {
+		type: 'label',
+		content: 'v1',
+		x: 200,
+		y: 30
+	    },
+	    {
+		type: 'vector',
+		x: -100,
+		y: 50,
+		translation: {
+		    x: 0,
+		    y: 0
+		}
+	    },
+	    {
+		type: 'label',
+		content: 'v2',
+		x: -100,
+		y: 60
+	    },
+	    {
+		type: 'vector',
+		x: -50,
+		y: -50,
+		translation: {
+		    x: 0,
+		    y: 0
+		}
+	    },
+	    {
+		type: 'label',
+		content: 'v3',
+		x: -70,
+		y: -40
+	    },
+	    {
+		type: 'vector',
+		x: 150,
+		y: -230,
+		translation: {
+		    x: 0,
+		    y: 0
+		}
+	    },
+	    {
+		type: 'label',
+		content: 'v4',
+		x: 150,
+		y: -200
+	    },
 	]
     };
-
-    render(state);
 }
 
 window.onload = init;
