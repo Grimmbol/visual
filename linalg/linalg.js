@@ -15,12 +15,14 @@ function render(state) {
 
 function clear_canvas(state) {
     let context = state.context;
-    context.clearRect(0,0, state.width, state.height);
+    console.log("clear canvas!", state.size.width, state.size.height);
+    context.clearRect(0,0, state.size.width, state.size.height);
 }
 
 function render_objects(state) {
     let numObjects = state.objects.length
     let objects = state.objects;
+    console.log("about to render these objects", objects);
     for(let i = 0; i < numObjects; i++) {
 	let currentObject = objects[i]
 	let currentType = currentObject.type
@@ -133,7 +135,7 @@ function pxstringToInt(input) {
     return parseInt(trimmedString);
 }
 
-// Input and output in degrees
+// *** Geometry and linear algebra ***
 function rotateVector(x, y, angle) {
     let cycles = (angle%360) / 360;
     let angle_rad = 2*Math.PI*cycles;
@@ -175,14 +177,90 @@ function findVectorAngle(x, y) {
 }
 
 const init = () => {
-    let handle = document.querySelector("#main_canvas");
-    let context = handle.getContext('2d');
-    let state = populateInitialState(context); 
+    let canvasHandle = document.querySelector("#main_canvas");
+    let context = canvasHandle.getContext('2d');
 
+    let matrixHandles = [
+	[document.querySelector("#matrix11"), document.querySelector("#matrix12")],
+	[document.querySelector("#matrix21"), document.querySelector("#matrix22")]
+    ];
+    console.log(matrixHandles);
+    let matrixValues = [[1, 0],
+			[0, 1]];
+    
+    let solutionHandles = [
+	"bx", "by"
+    ];
+
+    let state = populateTestState(context);
+
+    state.matrixHandles = matrixHandles;
+    state.matrixValues = matrixValues;
+    
+    matrixHandles[0][0].addEventListener('input',
+					 (e) => {
+					     let newVal = parseInt(e.target.value);
+					     state.matrixValues[0][0] = newVal;
+					     update(state);
+					 });
+    matrixHandles[0][1].addEventListener('input',
+					 (e) => {
+					     let newVal = parseInt(e.target.value);
+					     state.matrixValues[0][1] = newVal;
+					     update(state);
+					 });    
+    matrixHandles[1][0].addEventListener('input',
+					 (e) => {
+					     let newVal = parseInt(e.target.value);
+					     state.matrixValues[1][0] = newVal;
+					     update(state);
+					 });
+    matrixHandles[1][1].addEventListener('input',
+					 (e) => {
+					     let newVal = parseInt(e.target.value);
+					     state.matrixValues[1][1] = newVal;
+					     update(state);
+					 });    
+
+    
+    synchroniseUIState(state);
+    update(state);
+}
+
+function synchroniseUIState(state) {
+    state.matrixHandles[0][0].value = state.matrixValues[0][0];
+    state.matrixHandles[0][1].value = state.matrixValues[0][1];
+    state.matrixHandles[1][0].value = state.matrixValues[1][0];
+    state.matrixHandles[1][1].value = state.matrixValues[1][1];
+}
+
+function update(state) {
+    updateRenderObjects(state);
     render(state);
 }
 
-function populateInitialState(context) {
+function updateRenderObjects(state) {
+    console.log("Update!")
+    console.log("The current matrix values", state.matrixValues);
+    let newObjects = [];
+    let col1 = {
+	type: 'vector',
+	x: state.matrixValues[0][0],
+	y: state.matrixValues[1][0],
+	translation: {x: 0, y: 0}
+    };
+    let col1l = {
+	type: 'label',
+	content: 'col 1',
+ 	x: state.matrixValues[0][0],
+	y: state.matrixValues[1][0] + 10,
+    };
+    newObjects.push(col1);
+    newObjects.push(col1l);
+    state.objects = newObjects;
+}
+
+function populateTestState(context) {
     return {
 	origin: {x: 250, y: 250},
 	size: {

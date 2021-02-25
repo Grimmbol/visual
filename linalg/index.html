@@ -7,8 +7,23 @@
 <body>
   <main>
     <h1> Equations! </h1>
-    <canvas id = "main_canvas" width="500px" height="500px">
+    <div id="math_content">
+      <div id="input_column">
+	<div id="matrix">
+	  <div class="matrix_row">
+	    <input type="number" class="matrix_cell" id="matrix11"></input>
+	    <input type="number" class="matrix_cell" id="matrix12"></input>
+	  </div>
+	  <div class="matrix_row">
+	    <input type="number" class="matrix_cell" id="matrix21"></input>
+	    <input type="number" class="matrix_cell" id="matrix22"></input>
+	  </div>
+	</div>
+      </div>
+      <canvas id = "main_canvas" width="500px" height="500px">
       Your browser does not seem to support HTML canvas :'(
-    </canvas>
+      </canvas>
+    </div>
   </main>
 </body>
+'

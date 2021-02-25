@@ -13,3 +13,7 @@ main {
     margin-left: 100px;
     margin-right: 100px;
 }
+
+.matrix_cell {
+    width: 50px;
+}
