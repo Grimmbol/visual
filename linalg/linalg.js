@@ -223,11 +223,11 @@ const init = () => {
 					 });    
 
     
-    synchroniseUIState(state);
+    setUIFromState(state);
     update(state);
 }
 
-function synchroniseUIState(state) {
+function setUIFromState(state) {
     state.matrixHandles[0][0].value = state.matrixValues[0][0];
     state.matrixHandles[0][1].value = state.matrixValues[0][1];
     state.matrixHandles[1][0].value = state.matrixValues[1][0];
