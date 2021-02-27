@@ -8,22 +8,44 @@
   <main>
     <h1> Equations! </h1>
     <div id="math_content">
-      <div id="input_column">
-	<div id="matrix">
-	  <div class="matrix_row">
-	    <input type="number" class="matrix_cell" id="matrix11"></input>
-	    <input type="number" class="matrix_cell" id="matrix12"></input>
+      <div id="input_row">
+	  <div class="matrix bars">
+	    <div class="vector_col">
+	      <input type="number" class="matrix_cell" id="matrix11"></input>
+	      <input type="number" class="matrix_cell" id="matrix21"></input>
+	    </div>
+	    <div class="vector_col">
+	      <input type="number" class="matrix_cell" id="matrix12"></input>
+	      <input type="number" class="matrix_cell" id="matrix22"></input>
+	    </div>
 	  </div>
-	  <div class="matrix_row">
-	    <input type="number" class="matrix_cell" id="matrix21"></input>
-	    <input type="number" class="matrix_cell" id="matrix22"></input>
+	  <div class="matrix_operator">
+	    <div class="operator_container">
+	      *
+	    </div>
+	  </div>
+	  <div class="vector_col bars">
+	    <div class="matrix_cell center_text" id="x11">x1</div>
+	    <div class="matrix_cell center_text" id="x21">x2</div>
+	  </div>
+	  
+	  <div class="matrix_operator">
+	    <div class="operator_container">
+	      =
+	    </div>
+	  </div>
+	  <div class="vector_col bars">
+	    <input type="number" class="matrix_cell" id="b11"></input>
+	    <input type="number" class="matrix_cell" id="b21"></input>
 	  </div>
 	</div>
       </div>
-      <canvas id = "main_canvas" width="500px" height="500px">
-      Your browser does not seem to support HTML canvas :'(
-      </canvas>
+      <div id="canvas_row">
+	<canvas id = "main_canvas" width="500px" height="500px">
+	  Your browser does not seem to support HTML canvas :'(
+	</canvas>
+      </div>
     </div>
   </main>
 </body>
-'
+
