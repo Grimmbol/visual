@@ -176,26 +176,43 @@ function findVectorAngle(x, y) {
     return angle
 }
 
+// *** Setup ***
 const init = () => {
     let canvasHandle = document.querySelector("#main_canvas");
     let context = canvasHandle.getContext('2d');
-
+    let state = initiateState(context);
+    
     let matrixHandles = [
 	[document.querySelector("#matrix11"), document.querySelector("#matrix12")],
 	[document.querySelector("#matrix21"), document.querySelector("#matrix22")]
     ];
     console.log(matrixHandles);
-    let matrixValues = [[1, 0],
-			[0, 1]];
-    
-    let solutionHandles = [
-	"bx", "by"
-    ];
+    let matrixValues = [[ 40, 20],
+			[-20 ,10]];
 
-    let state = populateTestState(context);
+    let bValues = [100,
+		   100];
+    
+    let bHandles = [
+	document.querySelector("#b11"), document.querySelector("#b21")
+    ];
 
     state.matrixHandles = matrixHandles;
     state.matrixValues = matrixValues;
+
+    state.bHandles = bHandles;
+    state.bValues = bValues;
+    
+    setupMatrixListeners(state);
+    setupBListeners(state);
+    
+    setUIFromState(state);
+    update(state);
+}
+
+function setupMatrixListeners(state) {
+
+    const {matrixHandles} = state;
     
     matrixHandles[0][0].addEventListener('input',
 					 (e) => {
@@ -221,17 +238,35 @@ const init = () => {
 					     state.matrixValues[1][1] = newVal;
 					     update(state);
 					 });    
+}
 
-    
-    setUIFromState(state);
-    update(state);
+function setupBListeners(state) {
+    const {bHandles} = state;
+    bHandles[0].addEventListener('input',
+				 (e) => {
+				     let newVal = parseInt(e.target.value);
+				     state.bValues[0] = newVal;
+				     update(state);
+				 });
+    bHandles[1].addEventListener('input',
+				 (e) => {
+				     let newVal = parseInt(e.target.value);
+				     state.bValues[1] = newVal;
+				     update(state);
+				 });
 }
 
 function setUIFromState(state) {
+    // The matrix A
     state.matrixHandles[0][0].value = state.matrixValues[0][0];
     state.matrixHandles[0][1].value = state.matrixValues[0][1];
     state.matrixHandles[1][0].value = state.matrixValues[1][0];
     state.matrixHandles[1][1].value = state.matrixValues[1][1];
+
+    // The vector b
+    state.bHandles[0].value = state.bValues[0];
+    state.bHandles[1].value = state.bValues[1];
+    
 }
 
 function update(state) {
@@ -242,7 +277,6 @@ function update(state) {
 function updateRenderObjects(state) {
     console.log("Update!")
     console.log("The current matrix values", state.matrixValues);
-    let newObjects = [];
     let col1 = {
 	type: 'vector',
 	x: state.matrixValues[0][0],
@@ -255,9 +289,45 @@ function updateRenderObjects(state) {
  	x: state.matrixValues[0][0],
 	y: state.matrixValues[1][0] + 10,
     };
-    newObjects.push(col1);
-    newObjects.push(col1l);
-    state.objects = newObjects;
+    let col2 = {
+	type: 'vector',
+	x: state.matrixValues[0][1],
+	y: state.matrixValues[1][1],
+	translation: {x: 0, y: 0}
+    };
+    let col2l = {
+	type: 'label',
+	content: 'col 2',
+ 	x: state.matrixValues[0][1],
+	y: state.matrixValues[1][1] + 10,
+    };
+
+    let bVec = {
+	type: 'vector',
+	x: state.bValues[0],
+	y: state.bValues[1],
+	translation: {x: 0, y: 0}
+    }
+    let bLabel =  {
+	type: 'label',
+	content: 'b',
+	x: state.bValues[0],
+	y: state.bValues[1] + 10,
+    }
+    
+    state.objects = [col1, col2, bVec, bLabel, col1l, col2l];
+}
+
+function initiateState(context) {
+    return {
+	origin: {x: 250, y: 250},
+	size: {
+	    width:  pxstringToInt(context.canvas.attributes.width.value),
+	    height: pxstringToInt(context.canvas.attributes.height.value)
+	},
+	context: context,
+	objects:[]
+    }
 }
 
 function populateTestState(context) {

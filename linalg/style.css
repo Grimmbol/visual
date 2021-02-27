@@ -1,3 +1,11 @@
+:root {
+    --number-font-size: 20xp;
+}
+
+body {
+    font-family: Verdana;
+}
+
 h1 {
     color: red;
 }
@@ -31,9 +39,11 @@ main {
 .vector_col{
     display: flex;
     flex-direction: column;
+    align-content: flex-end;
 }
 
 .matrix_cell {
+    font-size: var(--number-font-size);
     width: 50px;
 }
 
@@ -46,6 +56,10 @@ main {
     margin-top: 0.8em;
 }
 
+
+input[type="number"] {
+    font-family: inherit;
+}
 
 .center_text {
     text-align: center;
